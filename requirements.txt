@@ -1,4 +1,5 @@
 geopandas
+boken
 folium
 pandas
 datetime
