@@ -42,6 +42,7 @@ def main():
             geometry = [Polygon(zip(xs, ys)) for xs, ys in zip(df['x'], df['y'])]
             gdf = gpd.GeoDataFrame(geometry=geometry)
             gdf.set_crs(epsg=3857, inplace=True)  # Set CRS to Web Mercator
+            st.dataframe(gdf)
             gdf.to_file("drawn_polygon.geojson", driver="GeoJSON")
 
             with open("drawn_polygon.geojson", "r") as file:
