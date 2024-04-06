@@ -12,11 +12,11 @@ def main():
     source = ColumnDataSource(data={'xs': [], 'ys': []})
 
     # Map setup
-    map_options = CARTODBPOSITRON
+    tile_provider = get_provider(CARTODBPOSITRON_RETINA)
     p = figure(title="Draw on the map", x_axis_type="mercator", y_axis_type="mercator",
                x_range=(-10000000, 10000000), y_range=(-10000000, 10000000),
                sizing_mode="scale_width", height=400)
-    p.add_tile(map_options)
+    p.add_tile(tile_provider)
 
     # Drawing tool setup
     renderer = p.patches('xs', 'ys', source=source, fill_alpha=0.6, line_color='black')
@@ -45,7 +45,6 @@ def main():
             with open("drawn_polygon.geojson", "r") as file:
                 geojson_data = file.read()
                 st.download_button(label="Download GeoJSON", data=geojson_data, file_name="drawn_polygon.geojson", mime="application/json")
-
 if __name__ == "__main__":
     main()
 
