@@ -47,4 +47,7 @@ def main():
 
             with open("drawn_polygon.geojson", "r") as file:
                 geojson_data = file.read()
-                st
+                st.download_button(label="Download GeoJSON", data=geojson_data, file_name="drawn_polygon.geojson", mime="application/json")
+
+if __name__ == "__main__":
+    main()
