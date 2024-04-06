@@ -2,6 +2,7 @@ import streamlit as st
 from bokeh.plotting import figure
 from bokeh.models import ColumnDataSource, PolyDrawTool
 from bokeh.tile_providers import get_provider, CARTODBPOSITRON
+from bokeh.tile_providers import CARTODBPOSITRON_RETINA
 import geopandas as gpd
 from shapely.geometry import Polygon
 
