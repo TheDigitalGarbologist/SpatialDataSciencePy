@@ -4,6 +4,7 @@ from bokeh.plotting import figure
 from bokeh.models import ColumnDataSource, FreehandDrawTool, GMapOptions
 from bokeh.tile_providers import get_provider, CARTODBPOSITRON
 import geopandas as gpd
+import pandas as pd
 from shapely.geometry import LineString
 import pyproj
 
