@@ -23,7 +23,7 @@ def main():
     renderer = p.patches('xs', 'ys', source=source, fill_alpha=0.6, line_color='black')
     draw_tool = PolyDrawTool(renderers=[renderer])
     p.add_tools(draw_tool)
-    p.toolbar.active_toggle = draw_tool
+    p.toolbar.active_drag = draw_tool
 
     # Display Bokeh plot in Streamlit
     st.bokeh_chart(p, use_container_width=True)
