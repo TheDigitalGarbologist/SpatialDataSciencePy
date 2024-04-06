@@ -1,5 +1,5 @@
+bokeh == 2.4.3
 geopandas
-bokeh
 folium
 pandas
 datetime
