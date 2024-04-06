@@ -1,5 +1,5 @@
 geopandas
-boken
+bokeh
 folium
 pandas
 datetime
