@@ -128,4 +128,5 @@ def main():
                 with map_placeholder:
                     folium_static(folium_map)
 
-if __name__ 
+if __name__ == "__main__":
+    main()
