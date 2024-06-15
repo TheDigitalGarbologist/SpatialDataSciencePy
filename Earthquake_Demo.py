@@ -91,13 +91,6 @@ def create_folium_map(df):
     
     return m
 
-# Function to filter data based on user input
-def filter_data(df, min_magnitude, max_magnitude, region):
-    filtered_df = df[(df['Magnitude'] >= min_magnitude) & (df['Magnitude'] <= max_magnitude)]
-    if region and region != "All":
-        filtered_df = filtered_df[filtered_df['Place'].str.contains(region, case=False, na=False)]
-    return filtered_df
-
 # Main Streamlit app
 def main():
     st.title("Recent Earthquakes")
@@ -112,17 +105,7 @@ def main():
     data = fetch_earthquake_data()
     if data:
         df = transform_data(data)
-    
-        # Sidebar filters
-        st.sidebar.header("Filters")
-        min_magnitude = st.sidebar.slider("Minimum Magnitude", min_value=0.0, max_value=10.0, value=2.5)
-        max_magnitude = st.sidebar.slider("Maximum Magnitude", min_value=0.0, max_value=10.0, value=10.0)
-        regions = ["All", "California", "Japan", "Indonesia", "Alaska", "Chile", "Mexico", "New Zealand", "Turkey"]
-        region = st.sidebar.selectbox("Region", regions)
-    
-        # Filter data
-        filtered_data = filter_data(df, min_magnitude, max_magnitude, region)
-    
+
         # Placeholder for the map
         map_placeholder = st.empty()
     
