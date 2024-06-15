@@ -110,20 +110,20 @@ def main():
         map_placeholder = st.empty()
     
         # Create and display the Folium map
-        folium_map = create_folium_map(filtered_data)
+        folium_map = create_folium_map(df)
         with map_placeholder:
             folium_static(folium_map)
     
         # Display additional stats
         st.subheader("Earthquake Statistics")
-        st.write(f"Total earthquakes in the past day: {len(filtered_data)}")
-        st.write(f"Strongest earthquake magnitude: {filtered_data['Magnitude'].max()}")
-        st.write(f"Weakest earthquake magnitude: {filtered_data['Magnitude'].min()}")
+        st.write(f"Total earthquakes in the past day: {len(df)}")
+        st.write(f"Strongest earthquake magnitude: {df['Magnitude'].max()}")
+        st.write(f"Weakest earthquake magnitude: {df['Magnitude'].min()}")
 
         # Display a chart of earthquake magnitudes
         st.subheader("Earthquake Magnitudes")
         fig, ax = plt.subplots()
-        filtered_data['Magnitude'].hist(bins=20, ax=ax)
+        df['Magnitude'].hist(bins=20, ax=ax)
         ax.set_title("Distribution of Earthquake Magnitudes")
         ax.set_xlabel("Magnitude")
         ax.set_ylabel("Frequency")
@@ -134,8 +134,8 @@ def main():
             data = fetch_earthquake_data()
             if data:
                 df = transform_data(data)
-                filtered_data = filter_data(df, min_magnitude, max_magnitude, region)
-                folium_map = create_folium_map(filtered_data)
+                df = filter_data(df, min_magnitude, max_magnitude, region)
+                folium_map = create_folium_map(df)
                 with map_placeholder:
                     folium_static(folium_map)
 
