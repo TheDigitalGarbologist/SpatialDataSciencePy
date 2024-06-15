@@ -32,7 +32,7 @@ def transform_data(data):
     df = pd.DataFrame(earthquake_data)
     return df
 
-# Function to create a Folium map with stylized animated markers and a legend
+# Function to create a Folium map with stylized animated markers
 def create_folium_map(df):
     m = folium.Map(location=[0,0], zoom_start=1)
     
@@ -88,20 +88,6 @@ def create_folium_map(df):
     ).add_to(m)
     
     folium.LayerControl().add_to(m)
-    
-    # Add a legend to the map
-    legend_html = '''
-     <div style="
-     position: fixed; 
-     bottom: 50px; left: 50px; width: 160px; height: 120px; 
-     background-color: white; border:2px solid grey; z-index:9999; font-size:14px; padding: 10px;
-     ">&nbsp; <b>Earthquake Magnitude</b> <br>
-     &nbsp; <i class="fa fa-circle" style="color:yellow"></i>&nbsp; Magnitude < 3 <br>
-     &nbsp; <i class="fa fa-circle" style="color:orange"></i>&nbsp; 3 <= Magnitude < 5 <br>
-     &nbsp; <i class="fa fa-circle" style="color:red"></i>&nbsp; Magnitude >= 5
-     </div>
-     '''
-    m.get_root().html.add_child(folium.Element(legend_html))
     
     return m
 
