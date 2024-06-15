@@ -4,7 +4,7 @@ import folium
 from streamlit_folium import folium_static
 from folium.plugins import TimestampedGeoJson
 import requests
-import time
+import matplotlib.pyplot as plt
 
 # Function to fetch earthquake data from USGS with new caching
 @st.cache_data(ttl=600)  # Cache the data for 10 minutes
@@ -35,13 +35,12 @@ def transform_data(data):
 def create_folium_map(df):
     m = folium.Map(location=[df['Latitude'].mean(), df['Longitude'].mean()], zoom_start=2)
     
-    # Add a tile layer for Stadia Alidade Satellite
+    # Add a tile layer for ESRI Imagery
     folium.TileLayer(
-        tiles='https://tiles.stadiamaps.com/tiles/alidade_satellite/{z}/{x}/{y}{r}.{ext}',
-        attr='&copy; CNES, Distribution Airbus DS, © Airbus DS, © PlanetObserver (Contains Copernicus Data) | &copy; <a href="https://www.stadiamaps.com/" target="_blank">Stadia Maps</a> &copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-        ext='jpg',
-        name='Stadia Alidade Satellite',
-        overlay=True,
+        tiles='https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        attr='Tiles © Esri',
+        name='Esri Imagery',
+        overlay=False,
         control=True
     ).add_to(m)
     
@@ -86,8 +85,13 @@ def create_folium_map(df):
 def main():
     st.title("Recent Earthquakes")
     
-    st.write("This map shows recent earthquakes around the world with an animation showing their occurrence over time.")
+    st.write("""
+        This map shows recent earthquakes around the world with an animation showing their occurrence over time.
+        Data is sourced from the US Geological Survey (USGS). You can access the data [here](https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php).
+        The map is updated every 10 minutes.
+    """)
 
+    # Fetch and transform data
     data = fetch_earthquake_data()
     if data:
         df = transform_data(data)
@@ -100,16 +104,28 @@ def main():
         with map_placeholder:
             folium_static(folium_map)
     
-        # Auto-update feature
-        while True:
+        # Display additional stats
+        st.subheader("Earthquake Statistics")
+        st.write(f"Total earthquakes in the past day: {len(df)}")
+        st.write(f"Strongest earthquake magnitude: {df['Magnitude'].max()}")
+        st.write(f"Weakest earthquake magnitude: {df['Magnitude'].min()}")
+
+        # Display a chart of earthquake magnitudes
+        st.subheader("Earthquake Magnitudes")
+        fig, ax = plt.subplots()
+        df['Magnitude'].hist(bins=20, ax=ax)
+        ax.set_title("Distribution of Earthquake Magnitudes")
+        ax.set_xlabel("Magnitude")
+        ax.set_ylabel("Frequency")
+        st.pyplot(fig)
+
+        # Refresh button to manually update data
+        if st.button('Refresh Data'):
             data = fetch_earthquake_data()
             if data:
                 df = transform_data(data)
-                # Update the map in the placeholder
                 folium_map = create_folium_map(df)
                 with map_placeholder:
                     folium_static(folium_map)
-            time.sleep(600)  # Update every 10 minutes
 
-if __name__ == "__main__":
-    main()
+if __name__ 
