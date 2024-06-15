@@ -97,7 +97,8 @@ def main():
     
         # Create and display the Folium map
         folium_map = create_folium_map(df)
-        map_placeholder.write(folium_static(folium_map))
+        with map_placeholder:
+            folium_static(folium_map)
     
         # Auto-update feature
         while True:
@@ -106,7 +107,8 @@ def main():
                 df = transform_data(data)
                 # Update the map in the placeholder
                 folium_map = create_folium_map(df)
-                map_placeholder.write(folium_static(folium_map))
+                with map_placeholder:
+                    folium_static(folium_map)
             time.sleep(600)  # Update every 10 minutes
 
 if __name__ == "__main__":
