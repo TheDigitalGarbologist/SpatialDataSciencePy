@@ -92,7 +92,7 @@ def create_folium_map(df):
     # Add a legend to the map
     legend_html = '''
      <div style="position: fixed; 
-     bottom: 50px; left: 50px; width: 150px; height: 110px; 
+     bottom: 50px; right: 50px; width: 150px; height: 110px; 
      background-color: white; border:2px solid grey; z-index:9999; font-size:14px;
      ">&nbsp; Earthquake Magnitude <br>
      &nbsp; <i class="fa fa-circle" style="color:yellow"></i>&nbsp; Magnitude < 3 <br>
