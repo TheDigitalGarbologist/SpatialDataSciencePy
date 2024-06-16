@@ -6,78 +6,18 @@ from folium.plugins import TimestampedGeoJson
 import requests
 import matplotlib.pyplot as plt
 
-# Function to inject JavaScript to detect user theme preference
-def inject_js():
-    st.markdown(
-        """
-        <script>
-        const getPreferredTheme = () => {
-            const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-            if (isDarkMode) {
-                document.body.classList.add('dark-mode');
-                document.body.classList.remove('light-mode');
-            } else {
-                document.body.classList.add('light-mode');
-                document.body.classList.remove('dark-mode');
-            }
-        };
-        window.onload = getPreferredTheme;
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', getPreferredTheme);
-        </script>
-        """,
-        unsafe_allow_html=True
-    )
-
-# Custom CSS for light and dark modes
+# Custom CSS for stat boxes
 st.markdown(
     """
     <style>
-    .light-mode h1 {
-        font-size: 2.5em;
-        color: #2C3E50;
-        text-align: center;
-        font-weight: bold;
-    }
-    .light-mode h2 {
-        font-size: 2em;
-        color: #2980B9;
-        text-align: center;
-        margin-top: 20px;
-    }
-    .light-mode .stats-box {
-        background-color: #ECF0F1;
+    .stat-box {
+        background-color: #ff4b4b;
         padding: 10px;
         border-radius: 5px;
         margin: 10px 0;
         text-align: center;
-    }
-    .light-mode body {
-        background-color: #FFFFFF;
-        color: #2C3E50;
-    }
-    .dark-mode h1 {
-        font-size: 2.5em;
-        color: #ECF0F1;
-        text-align: center;
+        color: white;
         font-weight: bold;
-    }
-    .dark-mode h2 {
-        font-size: 2em;
-        color: #2980B9;
-        text-align: center;
-        margin-top: 20px;
-    }
-    .dark-mode .stats-box {
-        background-color: #2C3E50;
-        padding: 10px;
-        border-radius: 5px;
-        margin: 10px 0;
-        text-align: center;
-        color: #ECF0F1;
-    }
-    .dark-mode body {
-        background-color: #2C3E50;
-        color: #ECF0F1;
     }
     </style>
     """,
@@ -169,8 +109,7 @@ def create_folium_map(df):
 
 # Main Streamlit app
 def main():
-    inject_js()
-    st.markdown('<h1>Recent Earthquakes</h1>', unsafe_allow_html=True)
+    st.title("Recent Earthquakes")
     
     st.write("""
         This map shows recent earthquakes around the world with an animation showing their occurrence over time.
@@ -183,6 +122,15 @@ def main():
     if data:
         df = transform_data(data)
 
+        # Display additional stats using columns for better layout
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.markdown('<div class="stat-box">Total earthquakes: {}</div>'.format(len(df)), unsafe_allow_html=True)
+        with col2:
+            st.markdown('<div class="stat-box">Strongest magnitude: {}</div>'.format(df['Magnitude'].max()), unsafe_allow_html=True)
+        with col3:
+            st.markdown('<div class="stat-box">Weakest magnitude: {}</div>'.format(df['Magnitude'].min()), unsafe_allow_html=True)
+
         # Placeholder for the map
         map_placeholder = st.empty()
     
@@ -191,17 +139,8 @@ def main():
         with map_placeholder:
             folium_static(folium_map)
     
-        # Display additional stats using columns for better layout
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            st.markdown('<div class="stats-box">Total earthquakes: {}</div>'.format(len(df)), unsafe_allow_html=True)
-        with col2:
-            st.markdown('<div class="stats-box">Strongest magnitude: {}</div>'.format(df['Magnitude'].max()), unsafe_allow_html=True)
-        with col3:
-            st.markdown('<div class="stats-box">Weakest magnitude: {}</div>'.format(df['Magnitude'].min()), unsafe_allow_html=True)
-
         # Display a chart of earthquake magnitudes
-        st.markdown('<h2>Earthquake Magnitudes</h2>', unsafe_allow_html=True)
+        st.subheader("Earthquake Magnitudes")
         fig, ax = plt.subplots()
         df['Magnitude'].hist(bins=20, ax=ax)
         ax.set_title("Distribution of Earthquake Magnitudes")
