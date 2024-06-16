@@ -1,4 +1,4 @@
-import streamlit as st
+eimport streamlit as st
 import pandas as pd
 import folium
 from streamlit_folium import folium_static
@@ -52,7 +52,7 @@ def transform_data(data):
 
 # Function to create a Folium map with stylized animated markers
 def create_folium_map(df):
-    m = folium.Map(location=[0,0], zoom_start=2)
+    m = folium.Map(location=[0,0], zoom_start=1)
     # Add a tile layer for ESRI Imagery
     folium.TileLayer(
         tiles='https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
