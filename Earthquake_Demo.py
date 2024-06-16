@@ -170,7 +170,7 @@ def create_folium_map(df):
 # Main Streamlit app
 def main():
     inject_js()
-    st.markdown('<div class="main-title">Recent Earthquakes</div>', unsafe_allow_html=True)
+    st.markdown('<div class="main-title"> # Recent Earthquakes</div>', unsafe_allow_html=True)
     
     st.write("""
         This map shows recent earthquakes around the world with an animation showing their occurrence over time.
