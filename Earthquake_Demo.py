@@ -109,10 +109,10 @@ def create_folium_map(df):
 
 # Main Streamlit app
 def main():
-    st.title("Recent Earthquakes (Last 24 Hours)")
+    st.title("Recent Earthquakes")
     
     st.write("""
-        This map shows recent earthquakes around the world with an animation showing their occurrence over time.
+        This map shows earthquakes around the world over the last 24 hours with an animation showing their occurrence over time.
         Data is sourced from the US Geological Survey (USGS). You can access the data [here](https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php).
         The map is updated every 10 minutes.
     """)
