@@ -5,10 +5,10 @@ from streamlit_folium import folium_static
 from folium.plugins import TimestampedGeoJson
 import requests
 import matplotlib.pyplot as plt
-import os
-from PIL import Image
+from io import BytesIO
 import imageio
 from moviepy.editor import ImageSequenceClip
+from PIL import Image
 
 # Custom CSS for stat boxes
 st.markdown(
@@ -111,16 +111,20 @@ def create_folium_map(df):
     
     return m
 
-# Function to save map frames as images
-def save_map_frames(map_object, num_frames, output_folder):
+# Function to save map frames as images in memory
+def save_map_frames_in_memory(map_object, num_frames):
+    frames = []
     for i in range(num_frames):
-        map_object.save(f"{output_folder}/frame_{i}.png")
+        img_data = BytesIO()
+        map_object.save(img_data, close_file=False)
+        img_data.seek(0)
+        img = Image.open(img_data)
+        frames.append(img)
+    return frames
 
 # Function to create a GIF from saved frames
-def create_gif_from_frames(frame_folder, output_file, fps=2):
-    frame_files = [f"{frame_folder}/frame_{i}.png" for i in range(len(os.listdir(frame_folder)))]
-    images = [Image.open(frame) for frame in frame_files]
-    imageio.mimsave(output_file, images, fps=fps)
+def create_gif_from_frames_in_memory(frames, output_file, fps=2):
+    imageio.mimsave(output_file, frames, fps=fps)
 
 # Main Streamlit app
 def main():
@@ -165,19 +169,12 @@ def main():
 
         # Add an option to create a GIF
         num_frames = st.number_input('Number of Frames for GIF', min_value=1, max_value=100, value=10)
-        gif_output_folder = '/tmp/gif_frames'
         gif_output_file = '/tmp/earthquake_map.gif'
         
         if st.button('Create GIF'):
-            os.makedirs(gif_output_folder, exist_ok=True)
-            save_map_frames(folium_map, num_frames, gif_output_folder)
-            create_gif_from_frames(gif_output_folder, gif_output_file)
+            frames = save_map_frames_in_memory(folium_map, num_frames)
+            create_gif_from_frames_in_memory(frames, gif_output_file)
             st.image(gif_output_file, caption='Generated Earthquake Map GIF')
-            
-            # Clean up frames after creating the GIF
-            for file in os.listdir(gif_output_folder):
-                os.remove(os.path.join(gif_output_folder, file))
-            os.rmdir(gif_output_folder)
 
         # Refresh button to manually update data
         if st.button('Refresh Data'):
@@ -190,6 +187,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
