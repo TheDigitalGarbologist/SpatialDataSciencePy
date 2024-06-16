@@ -32,14 +32,14 @@ def inject_js():
 st.markdown(
     """
     <style>
-    .light-mode .main-title {
-        font-size: 2em;
+    .light-mode h1 {
+        font-size: 2.5em;
         color: #2C3E50;
         text-align: center;
         font-weight: bold;
     }
-    .light-mode .sub-header {
-        font-size: 1.5em;
+    .light-mode h2 {
+        font-size: 2em;
         color: #2980B9;
         text-align: center;
         margin-top: 20px;
@@ -55,14 +55,14 @@ st.markdown(
         background-color: #FFFFFF;
         color: #2C3E50;
     }
-    .dark-mode .main-title {
-        font-size: 2em;
+    .dark-mode h1 {
+        font-size: 2.5em;
         color: #ECF0F1;
         text-align: center;
         font-weight: bold;
     }
-    .dark-mode .sub-header {
-        font-size: 1.5em;
+    .dark-mode h2 {
+        font-size: 2em;
         color: #2980B9;
         text-align: center;
         margin-top: 20px;
@@ -170,7 +170,7 @@ def create_folium_map(df):
 # Main Streamlit app
 def main():
     inject_js()
-    st.markdown('<div class="main-title"> # Recent Earthquakes</div>', unsafe_allow_html=True)
+    st.markdown('<h1>Recent Earthquakes</h1>', unsafe_allow_html=True)
     
     st.write("""
         This map shows recent earthquakes around the world with an animation showing their occurrence over time.
@@ -201,7 +201,7 @@ def main():
             st.markdown('<div class="stats-box">Weakest magnitude: {}</div>'.format(df['Magnitude'].min()), unsafe_allow_html=True)
 
         # Display a chart of earthquake magnitudes
-        st.markdown('<div class="sub-header">Earthquake Magnitudes</div>', unsafe_allow_html=True)
+        st.markdown('<h2>Earthquake Magnitudes</h2>', unsafe_allow_html=True)
         fig, ax = plt.subplots()
         df['Magnitude'].hist(bins=20, ax=ax)
         ax.set_title("Distribution of Earthquake Magnitudes")
