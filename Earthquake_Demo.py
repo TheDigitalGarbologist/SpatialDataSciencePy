@@ -6,6 +6,7 @@ from folium.plugins import TimestampedGeoJson
 import requests
 import matplotlib.pyplot as plt
 import os
+from PIL import Image
 import imageio
 from moviepy.editor import ImageSequenceClip
 
@@ -118,7 +119,7 @@ def save_map_frames(map_object, num_frames, output_folder):
 # Function to create a GIF from saved frames
 def create_gif_from_frames(frame_folder, output_file, fps=2):
     frame_files = [f"{frame_folder}/frame_{i}.png" for i in range(len(os.listdir(frame_folder)))]
-    images = [imageio.imread(frame) for frame in frame_files]
+    images = [Image.open(frame) for frame in frame_files]
     imageio.mimsave(output_file, images, fps=fps)
 
 # Main Streamlit app
@@ -189,6 +190,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
