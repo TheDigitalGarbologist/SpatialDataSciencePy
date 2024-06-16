@@ -6,33 +6,67 @@ from folium.plugins import TimestampedGeoJson
 import requests
 import matplotlib.pyplot as plt
 
-# Custom CSS for styling
-st.markdown(
-    """
-    <style>
-    .main-title {
-        font-size: 2em;
-        color: #2C3E50;
-        text-align: center;
-        font-weight: bold;
-    }
-    .sub-header {
-        font-size: 1.5em;
-        color: #2980B9;
-        text-align: center;
-        margin-top: 20px;
-    }
-    .stats-box {
-        background-color: #ecf0f1;
-        padding: 10px;
-        border-radius: 5px;
-        margin: 10px 0;
-        text-align: center;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
+# Custom CSS for light and dark modes
+def apply_custom_css(dark_mode):
+    if dark_mode:
+        st.markdown(
+            """
+            <style>
+            .main-title {
+                font-size: 2em;
+                color: #ECF0F1;
+                text-align: center;
+                font-weight: bold;
+            }
+            .sub-header {
+                font-size: 1.5em;
+                color: #2980B9;
+                text-align: center;
+                margin-top: 20px;
+            }
+            .stats-box {
+                background-color: #2C3E50;
+                padding: 10px;
+                border-radius: 5px;
+                margin: 10px 0;
+                text-align: center;
+                color: #ECF0F1;
+            }
+            body {
+                background-color: #2C3E50;
+                color: #ECF0F1;
+            }
+            </style>
+            """,
+            unsafe_allow_html=True
+        )
+    else:
+        st.markdown(
+            """
+            <style>
+            .main-title {
+                font-size: 2em;
+                color: #2C3E50;
+                text-align: center;
+                font-weight: bold;
+            }
+            .sub-header {
+                font-size: 1.5em;
+                color: #2980B9;
+                text-align: center;
+                margin-top: 20px;
+            }
+            .stats-box {
+                background-color: #ECF0F1;
+                padding: 10px;
+                border-radius: 5px;
+                margin: 10px 0;
+                text-align: center;
+            }
+            </style>
+            """,
+            unsafe_allow_html=True
+        )
 
 # Function to fetch earthquake data from USGS with caching
 @st.cache_data(ttl=600)  # Cache the data for 10 minutes
@@ -119,6 +153,10 @@ def create_folium_map(df):
 
 # Main Streamlit app
 def main():
+    # Dark mode toggle
+    dark_mode = st.sidebar.checkbox('Dark Mode', value=True)
+    apply_custom_css(dark_mode)
+
     st.markdown('<div class="main-title">Recent Earthquakes</div>', unsafe_allow_html=True)
     
     st.write("""
@@ -126,6 +164,7 @@ def main():
         Data is sourced from the US Geological Survey (USGS). You can access the data [here](https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php).
         The map is updated every 10 minutes.
     """)
+
 
     # Fetch and transform data
     data = fetch_earthquake_data()
