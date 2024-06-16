@@ -62,8 +62,15 @@ def transform_data(data):
 
 # Function to create a Folium map with stylized animated markers
 def create_folium_map(df):
-    m = folium.Map(location=[0,0], zoom_start=2, tiles='Stamen Toner')
-    
+    m = folium.Map(location=[0,0], zoom_start=2)
+    # Add a tile layer for ESRI Imagery
+    folium.TileLayer(
+        tiles='https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        attr='Tiles © Esri',
+        name='Esri Imagery',
+        overlay=False,
+        control=True
+    ).add_to(m)
     # Create a list of features for TimestampedGeoJson with enhanced styling
     features = []
     for i, row in df.iterrows():
