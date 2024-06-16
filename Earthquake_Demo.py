@@ -164,8 +164,8 @@ def main():
 
         # Add an option to create a GIF
         num_frames = st.number_input('Number of Frames for GIF', min_value=1, max_value=100, value=10)
-        gif_output_folder = 'gif_frames'
-        gif_output_file = 'earthquake_map.gif'
+        gif_output_folder = '/tmp/gif_frames'
+        gif_output_file = '/tmp/earthquake_map.gif'
         
         if st.button('Create GIF'):
             os.makedirs(gif_output_folder, exist_ok=True)
