@@ -109,7 +109,7 @@ def create_folium_map(df):
 
 # Main Streamlit app
 def main():
-    st.title("Recent Earthquakes")
+    st.title("Recent Earthquakes (Last 24 Hours)")
     
     st.write("""
         This map shows recent earthquakes around the world with an animation showing their occurrence over time.
