@@ -6,7 +6,35 @@ from folium.plugins import TimestampedGeoJson
 import requests
 import matplotlib.pyplot as plt
 
-# Function to fetch earthquake data from USGS with new caching
+# Custom CSS for styling
+st.markdown(
+    """
+    <style>
+    .main-title {
+        font-size: 2em;
+        color: #2C3E50;
+        text-align: center;
+        font-weight: bold;
+    }
+    .sub-header {
+        font-size: 1.5em;
+        color: #2980B9;
+        text-align: center;
+        margin-top: 20px;
+    }
+    .stats-box {
+        background-color: #ecf0f1;
+        padding: 10px;
+        border-radius: 5px;
+        margin: 10px 0;
+        text-align: center;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+# Function to fetch earthquake data from USGS with caching
 @st.cache_data(ttl=600)  # Cache the data for 10 minutes
 def fetch_earthquake_data():
     api_url = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson"
@@ -27,23 +55,14 @@ def transform_data(data):
         'Magnitude': [feature['properties']['mag'] for feature in data],
         'Place': [feature['properties']['place'] for feature in data],
         'Time': [pd.to_datetime(feature['properties']['time'], unit='ms') for feature in data],
-        'Depth': [feature['properties'].get('depth', 'N/A') for feature in data]  # Assuming depth is included
+        'Depth': [feature['properties'].get('depth', 'N/A') for feature in data]
     }
     df = pd.DataFrame(earthquake_data)
     return df
 
 # Function to create a Folium map with stylized animated markers
 def create_folium_map(df):
-    m = folium.Map(location=[0,0], zoom_start=1)
-    
-    # Add a tile layer for ESRI Imagery
-    folium.TileLayer(
-        tiles='https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-        attr='Tiles © Esri',
-        name='Esri Imagery',
-        overlay=False,
-        control=True
-    ).add_to(m)
+    m = folium.Map(location=[0,0], zoom_start=2, tiles='Stamen Toner')
     
     # Create a list of features for TimestampedGeoJson with enhanced styling
     features = []
@@ -93,7 +112,7 @@ def create_folium_map(df):
 
 # Main Streamlit app
 def main():
-    st.title("Recent Earthquakes")
+    st.markdown('<div class="main-title">Recent Earthquakes</div>', unsafe_allow_html=True)
     
     st.write("""
         This map shows recent earthquakes around the world with an animation showing their occurrence over time.
@@ -114,14 +133,17 @@ def main():
         with map_placeholder:
             folium_static(folium_map)
     
-        # Display additional stats
-        st.subheader("Earthquake Statistics")
-        st.write(f"Total earthquakes in the past day: {len(df)}")
-        st.write(f"Strongest earthquake magnitude: {df['Magnitude'].max()}")
-        st.write(f"Weakest earthquake magnitude: {df['Magnitude'].min()}")
+        # Display additional stats using columns for better layout
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.markdown('<div class="stats-box">Total earthquakes: {}</div>'.format(len(df)), unsafe_allow_html=True)
+        with col2:
+            st.markdown('<div class="stats-box">Strongest magnitude: {}</div>'.format(df['Magnitude'].max()), unsafe_allow_html=True)
+        with col3:
+            st.markdown('<div class="stats-box">Weakest magnitude: {}</div>'.format(df['Magnitude'].min()), unsafe_allow_html=True)
 
         # Display a chart of earthquake magnitudes
-        st.subheader("Earthquake Magnitudes")
+        st.markdown('<div class="sub-header">Earthquake Magnitudes</div>', unsafe_allow_html=True)
         fig, ax = plt.subplots()
         df['Magnitude'].hist(bins=20, ax=ax)
         ax.set_title("Distribution of Earthquake Magnitudes")
