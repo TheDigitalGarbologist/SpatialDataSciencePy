@@ -6,67 +6,83 @@ from folium.plugins import TimestampedGeoJson
 import requests
 import matplotlib.pyplot as plt
 
+# Function to inject JavaScript to detect user theme preference
+def inject_js():
+    st.markdown(
+        """
+        <script>
+        const getPreferredTheme = () => {
+            const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (isDarkMode) {
+                document.body.classList.add('dark-mode');
+                document.body.classList.remove('light-mode');
+            } else {
+                document.body.classList.add('light-mode');
+                document.body.classList.remove('dark-mode');
+            }
+        };
+        window.onload = getPreferredTheme;
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', getPreferredTheme);
+        </script>
+        """,
+        unsafe_allow_html=True
+    )
+
 # Custom CSS for light and dark modes
-def apply_custom_css(dark_mode):
-    if dark_mode:
-        st.markdown(
-            """
-            <style>
-            .main-title {
-                font-size: 2em;
-                color: #ECF0F1;
-                text-align: center;
-                font-weight: bold;
-            }
-            .sub-header {
-                font-size: 1.5em;
-                color: #2980B9;
-                text-align: center;
-                margin-top: 20px;
-            }
-            .stats-box {
-                background-color: #2C3E50;
-                padding: 10px;
-                border-radius: 5px;
-                margin: 10px 0;
-                text-align: center;
-                color: #ECF0F1;
-            }
-            body {
-                background-color: #2C3E50;
-                color: #ECF0F1;
-            }
-            </style>
-            """,
-            unsafe_allow_html=True
-        )
-    else:
-        st.markdown(
-            """
-            <style>
-            .main-title {
-                font-size: 2em;
-                color: #2C3E50;
-                text-align: center;
-                font-weight: bold;
-            }
-            .sub-header {
-                font-size: 1.5em;
-                color: #2980B9;
-                text-align: center;
-                margin-top: 20px;
-            }
-            .stats-box {
-                background-color: #ECF0F1;
-                padding: 10px;
-                border-radius: 5px;
-                margin: 10px 0;
-                text-align: center;
-            }
-            </style>
-            """,
-            unsafe_allow_html=True
-        )
+st.markdown(
+    """
+    <style>
+    .light-mode .main-title {
+        font-size: 2em;
+        color: #2C3E50;
+        text-align: center;
+        font-weight: bold;
+    }
+    .light-mode .sub-header {
+        font-size: 1.5em;
+        color: #2980B9;
+        text-align: center;
+        margin-top: 20px;
+    }
+    .light-mode .stats-box {
+        background-color: #ECF0F1;
+        padding: 10px;
+        border-radius: 5px;
+        margin: 10px 0;
+        text-align: center;
+    }
+    .light-mode body {
+        background-color: #FFFFFF;
+        color: #2C3E50;
+    }
+    .dark-mode .main-title {
+        font-size: 2em;
+        color: #ECF0F1;
+        text-align: center;
+        font-weight: bold;
+    }
+    .dark-mode .sub-header {
+        font-size: 1.5em;
+        color: #2980B9;
+        text-align: center;
+        margin-top: 20px;
+    }
+    .dark-mode .stats-box {
+        background-color: #2C3E50;
+        padding: 10px;
+        border-radius: 5px;
+        margin: 10px 0;
+        text-align: center;
+        color: #ECF0F1;
+    }
+    .dark-mode body {
+        background-color: #2C3E50;
+        color: #ECF0F1;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 
 # Function to fetch earthquake data from USGS with caching
 @st.cache_data(ttl=600)  # Cache the data for 10 minutes
@@ -153,10 +169,7 @@ def create_folium_map(df):
 
 # Main Streamlit app
 def main():
-    # Dark mode toggle
-    dark_mode = st.sidebar.checkbox('Dark Mode', value=True)
-    apply_custom_css(dark_mode)
-
+    inject_js()
     st.markdown('<div class="main-title">Recent Earthquakes</div>', unsafe_allow_html=True)
     
     st.write("""
@@ -164,7 +177,6 @@ def main():
         Data is sourced from the US Geological Survey (USGS). You can access the data [here](https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php).
         The map is updated every 10 minutes.
     """)
-
 
     # Fetch and transform data
     data = fetch_earthquake_data()
