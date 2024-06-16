@@ -6,3 +6,5 @@ datetime
 streamlit
 streamlit-folium
 matplotlib
+imageio 
+moviepy
