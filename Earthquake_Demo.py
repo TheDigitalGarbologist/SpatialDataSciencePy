@@ -5,10 +5,10 @@ from streamlit_folium import folium_static
 from folium.plugins import TimestampedGeoJson
 import requests
 import matplotlib.pyplot as plt
-from io import BytesIO
 import imageio
-from moviepy.editor import ImageSequenceClip
+from io import BytesIO
 from PIL import Image
+import os
 
 # Custom CSS for stat boxes
 st.markdown(
@@ -55,9 +55,8 @@ def transform_data(data):
     return df
 
 # Function to create a Folium map with stylized animated markers
-def create_folium_map(df):
+def create_folium_map(df, time_index=None):
     m = folium.Map(location=[0,0], zoom_start=1, scrollWheelZoom=False)
-    # Add a tile layer for ESRI Imagery
     folium.TileLayer(
         tiles='https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
         attr='Tiles © Esri',
@@ -65,9 +64,11 @@ def create_folium_map(df):
         overlay=False,
         control=True
     ).add_to(m)
-    # Create a list of features for TimestampedGeoJson with enhanced styling
+
     features = []
     for i, row in df.iterrows():
+        if time_index is not None and i > time_index:
+            continue
         magnitude = row['Magnitude']
         color = 'red' if magnitude >= 5 else 'orange' if magnitude >= 3 else 'yellow'
         feature = {
@@ -91,14 +92,12 @@ def create_folium_map(df):
             }
         }
         features.append(feature)
-    
-    # Create TimestampedGeoJson with enhanced styling
+
     TimestampedGeoJson({
         'type': 'FeatureCollection',
         'features': features
     }, period='PT1H', add_last_point=True, auto_play=True, loop=True, max_speed=2).add_to(m)
-    
-    # Add a tile layer for ESRI World Imagery Labels
+
     folium.TileLayer(
         tiles='https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
         attr='Labels © Esri',
@@ -106,25 +105,26 @@ def create_folium_map(df):
         overlay=True,
         control=True
     ).add_to(m)
-    
+
     folium.LayerControl().add_to(m)
     
     return m
 
-# Function to save map frames as images in memory
-def save_map_frames_in_memory(map_object, num_frames):
-    frames = []
+# Function to create frames for the GIF
+def create_gif_frames(df, num_frames, output_folder):
     for i in range(num_frames):
+        m = create_folium_map(df, time_index=i)
         img_data = BytesIO()
-        map_object.save(img_data, close_file=False)
+        m.save(img_data, close_file=False)
         img_data.seek(0)
         img = Image.open(img_data)
-        frames.append(img)
-    return frames
+        img.save(f"{output_folder}/frame_{i}.png")
 
 # Function to create a GIF from saved frames
-def create_gif_from_frames_in_memory(frames, output_file, fps=2):
-    imageio.mimsave(output_file, frames, fps=fps)
+def create_gif_from_frames(frame_folder, output_file, fps=2):
+    frame_files = [f"{frame_folder}/frame_{i}.png" for i in range(len(os.listdir(frame_folder)))]
+    images = [imageio.imread(frame) for frame in frame_files]
+    imageio.mimsave(output_file, images, fps=fps)
 
 # Main Streamlit app
 def main():
@@ -169,12 +169,19 @@ def main():
 
         # Add an option to create a GIF
         num_frames = st.number_input('Number of Frames for GIF', min_value=1, max_value=100, value=10)
+        gif_output_folder = '/tmp/gif_frames'
         gif_output_file = '/tmp/earthquake_map.gif'
         
         if st.button('Create GIF'):
-            frames = save_map_frames_in_memory(folium_map, num_frames)
-            create_gif_from_frames_in_memory(frames, gif_output_file)
+            os.makedirs(gif_output_folder, exist_ok=True)
+            create_gif_frames(df, num_frames, gif_output_folder)
+            create_gif_from_frames(gif_output_folder, gif_output_file)
             st.image(gif_output_file, caption='Generated Earthquake Map GIF')
+            
+            # Clean up frames after creating the GIF
+            for file in os.listdir(gif_output_folder):
+                os.remove(os.path.join(gif_output_folder, file))
+            os.rmdir(gif_output_folder)
 
         # Refresh button to manually update data
         if st.button('Refresh Data'):
