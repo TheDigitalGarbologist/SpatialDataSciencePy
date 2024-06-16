@@ -192,8 +192,6 @@ if __name__ == "__main__":
 
 
 
-
-
 # import streamlit as st
 # import pandas as pd
 # import folium
