@@ -92,7 +92,7 @@ def create_folium_map(df):
     TimestampedGeoJson({
         'type': 'FeatureCollection',
         'features': features
-    }, period='PT1H', add_last_point=True, auto_play=True, loop=True).add_to(m)
+    }, period='PT1H', add_last_point=True, auto_play=True, loop=True, max_speed=2).add_to(m)
     
     # Add a tile layer for ESRI World Imagery Labels
     folium.TileLayer(
