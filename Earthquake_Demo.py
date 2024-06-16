@@ -4,28 +4,9 @@ import folium
 from streamlit_folium import folium_static
 from folium.plugins import TimestampedGeoJson
 import requests
-import matplotlib.pyplot as plt
-import imageio
 from io import BytesIO
-from PIL import Image
-
-# Custom CSS for stat boxes
-st.markdown(
-    """
-    <style>
-    .stat-box {
-        background-color: #ff4b4b;
-        padding: 10px;
-        border-radius: 5px;
-        margin: 10px 0;
-        text-align: center;
-        color: white;
-        font-weight: bold;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
+from PIL import Image, ImageDraw
+import imageio
 
 # Function to fetch earthquake data from USGS with caching
 @st.cache_data(ttl=600)  # Cache the data for 10 minutes
@@ -122,24 +103,23 @@ def create_gif_frames(df, num_frames):
     return frames
 
 # Function to create a GIF from frames in memory
-def create_gif_from_frames(frames, output_file, fps=2):
-    with BytesIO() as gif_buffer:
-        frames[0].save(
-            gif_buffer,
-            format='GIF',
-            save_all=True,
-            append_images=frames[1:],
-            duration=int(1000 / fps),
-            loop=0
-        )
-        gif_buffer.seek(0)
-        with open(output_file, 'wb') as f:
-            f.write(gif_buffer.read())
+def create_gif_from_frames(frames, fps=2):
+    gif_buffer = BytesIO()
+    frames[0].save(
+        gif_buffer,
+        format='GIF',
+        save_all=True,
+        append_images=frames[1:],
+        duration=int(1000 / fps),
+        loop=0
+    )
+    gif_buffer.seek(0)
+    return gif_buffer
 
 # Main Streamlit app
 def main():
     st.title("Recent Earthquakes")
-    
+
     st.write("""
         This map shows earthquakes around the world over the last 24 hours with an animation showing their occurrence over time.
         Data is sourced from the US Geological Survey (USGS). You can access the data [here](https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php).
@@ -151,40 +131,22 @@ def main():
     if data:
         df = transform_data(data)
 
-        # Display additional stats using columns for better layout
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            st.markdown('<div class="stat-box">Total earthquakes: {}</div>'.format(len(df)), unsafe_allow_html=True)
-        with col2:
-            st.markdown('<div class="stat-box">Strongest magnitude: {}</div>'.format(df['Magnitude'].max()), unsafe_allow_html=True)
-        with col3:
-            st.markdown('<div class="stat-box">Weakest magnitude: {}</div>'.format(df['Magnitude'].min()), unsafe_allow_html=True)
-
         # Placeholder for the map
         map_placeholder = st.empty()
-    
+
         # Create and display the Folium map
         folium_map = create_folium_map(df)
         with map_placeholder:
             folium_static(folium_map)
-    
-        # Display a chart of earthquake magnitudes
-        st.subheader("Earthquake Magnitudes")
-        fig, ax = plt.subplots()
-        df['Magnitude'].hist(bins=20, ax=ax)
-        ax.set_title("Distribution of Earthquake Magnitudes")
-        ax.set_xlabel("Magnitude")
-        ax.set_ylabel("Frequency")
-        st.pyplot(fig)
 
         # Add an option to create a GIF
         num_frames = st.number_input('Number of Frames for GIF', min_value=1, max_value=100, value=10)
-        gif_output_file = '/tmp/earthquake_map.gif'
         
         if st.button('Create GIF'):
             frames = create_gif_frames(df, num_frames)
-            create_gif_from_frames(frames, gif_output_file)
-            st.image(gif_output_file, caption='Generated Earthquake Map GIF')
+            gif_buffer = create_gif_from_frames(frames)
+            st.image(gif_buffer, format='GIF', caption='Generated Earthquake Map GIF')
+            st.download_button(label="Download GIF", data=gif_buffer, file_name="earthquake_map.gif", mime="image/gif")
 
         # Refresh button to manually update data
         if st.button('Refresh Data'):
@@ -197,9 +159,6 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-
 
 # import streamlit as st
 # import pandas as pd
